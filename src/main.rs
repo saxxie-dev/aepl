@@ -27,6 +27,11 @@ fn main() {
                     stack.push(b - a);
                 }
             }
+            "🍾" => {
+                if stack.len() >= 1 {
+                    stack.pop();
+                }
+            }
             num => {
                 if let Ok(n) = num.parse::<i32>() {
                     stack.push(n);
