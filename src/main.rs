@@ -2,7 +2,7 @@ fn main() {
     let mut stack: Vec<i32> = Vec::new();
 
     // Example input: "5 10 + 3 *"
-    let input = "✖ 5 ➕ -1 2";
+    let input = "🍾 🥂 ✖ 5 ➕ -1 2 🍾 3";
 
     for token in input.split_whitespace().rev() {
         match token {
@@ -30,6 +30,11 @@ fn main() {
             "🍾" => {
                 if stack.len() >= 1 {
                     stack.pop();
+                }
+            }
+            "🥂" => {
+                if stack.len() >= 1 {
+                    stack.push(stack[0]);
                 }
             }
             num => {
