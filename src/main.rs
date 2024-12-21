@@ -1,53 +1,39 @@
+use aepl::parser::parse_ops;
+use aepl::types::{AeplStack, Literal, Op, Value};
+
 fn main() {
-    let mut stack: Vec<i32> = Vec::new();
+    let mut stack: AeplStack = Vec::new();
 
     // Example input: "5 10 + 3 *"
-    let input = "✖ 5 ➕ -1 2 🎉 3";
+    let input = "✖5➕2 2🎉3🫸hello🫷";
+    let parse_result = parse_ops(input);
+    match parse_result {
+        Err(e) => {
+            println!("Error parsing input: {}", e);
+            return;
+        }
+        Ok((_, ops)) => {
+            eval_ops(&mut stack, ops);
+        }
+    }
 
-    for token in tokenize(input) {
-        match token {
-            "✖" => {
-                if stack.len() >= 2 {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(a * b);
-                }
-            }
-            "➕" => {
-                if stack.len() >= 2 {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(a + b);
-                }
-            }
-            "➖" => {
-                if stack.len() >= 2 {
-                    let b = stack.pop().unwrap();
-                    let a = stack.pop().unwrap();
-                    stack.push(b - a);
-                }
-            }
-            "🎉" => {
-                if stack.len() >= 1 {
-                    stack.pop();
-                }
-            }
-            num => {
-                if let Ok(n) = num.parse::<i32>() {
-                    stack.push(n);
+    for value in stack.iter().rev() {
+        println!("{}", value);
+    }
+}
+
+fn eval_ops(stack: &mut AeplStack, ops: Vec<Op>) {
+    let builtins = aepl::builtins::get_builtins();
+    for op in ops.into_iter().rev() {
+        match op {
+            Op::Literal(literal) => stack.push(Value::Literal(literal)),
+            Op::Identifier(identifier) => {
+                if let Some(builtin) = builtins.get(&identifier) {
+                    builtin(stack);
+                } else {
+                    println!("Unknown identifier: {}", identifier);
                 }
             }
         }
     }
-
-    println!("Final stack: {:?}", stack);
-}
-
-#[derive(Debug, Clone)]
-enum StackValue {
-    Integer(i32),
-}
-
-fn tokenize(input: &str) -> Vec<&str> {
-    return input.split_whitespace().rev().collect();
 }
